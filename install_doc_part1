@@ -1,5 +1,10 @@
+Planungsphase, Vorbereitung, Ideen für die Installation
+
 ##wipe disk
+# use vendor-secific or commom-sense documented save mechanisms to securely erase all past data on the disc
+#
 ##disable secure boot
+# disable secure boot for as long as installing Arch Linux until you are ready to set secure boot up for the Arch installation
 
 ##boot into live environment
 ## first commands to help us work in the live environment

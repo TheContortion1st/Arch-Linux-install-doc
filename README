@@ -1,0 +1,7 @@
+Installationsanleitung für ein Arch Linux mit Full Disk Encryption auf btrfs-subvolumes und Secure Boot
+zusätzlich wird die nvme-SSD druch SED-Mechanismen (Self Encrypting Disk) gesichert
+
+Dieses git-Repository wird eine Textanleitung enthalten, die mein bisheriges Setup dokumentiert und wird mit jeder Installation oder grundlegenden Änderung an der Vorgehensweise erweitert werden. 
+
+config-Files werden ebenfalls hochgeladen, sofern diese für die Installation relevant sind. 
+
