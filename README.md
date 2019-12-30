@@ -1,5 +1,7 @@
 # Arch-Linux installation documentary
 
+![Screenfetch Arch](/images/screenfetch_arch.png)
+
 This will document my current Arch Linux installation with **SED** (self encrypted disk), **FDE** (full disk encryptyion, using dm-crypt and LUKS), **BTRFS** filesystem (with subvolumes for easy snapshotting and backup/restore) and **Secure Boot**.
 
 It may then further grow into a ['r/unixporn'](https://www.reddit.com/r/unixporn/) repository with config-files needed to achieve the current flavor of my system,
