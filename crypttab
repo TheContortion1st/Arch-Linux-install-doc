@@ -1,0 +1,14 @@
+# Configuration for encrypted block devices.
+# See crypttab(5) for details.
+
+# NOTE: Do not list your root (/) partition here, it must be set up
+#       beforehand by the initramfs (/etc/mkinitcpio.conf).
+
+# <name>	<device>					<password>		<options>
+# home		UUID=b8ad5c18-f445-495d-9095-c9ec4f9d2f37	/etc/mypassword1
+# data1		/dev/sda3					/etc/mypassword2
+# data2		/dev/sda5					/etc/cryptfs.key
+#swap		LABEL=cryptswap					/dev/urandom		swap,offset=2048,cipher=aes-cbc-essiv:sha256,size=256
+swap		LABEL=cryptswap					/dev/urandom		swap,offset=2048,cipher=aes-xts-plain64,size=512 
+# Note "offset=2048" + "size=512", this way the encrypted swap will not affect the 1MiB filesystem LABEL/UUID at the beginning of nvme0n1p2, and data algnment will work out as well
+# vol		/dev/sdb7					none
