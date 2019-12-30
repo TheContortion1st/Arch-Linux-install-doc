@@ -18,4 +18,8 @@ Very few things are special in this installation and 98% are just adapted and co
 I will try to link all used and usefull references to set up such a system and highly anticipate to not follow it as an
 installation guide, but read it as another wiki to learn how to set up your own rig. 
 
+Now [here](https://github.com/TheContortion1st/Arch-Linux-install-doc/wiki) you go to the Wiki and documentary.
+
+Have fun reading! 
+
 _author Daniel Punke_
