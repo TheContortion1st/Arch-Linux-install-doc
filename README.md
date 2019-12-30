@@ -1,6 +1,18 @@
-#Arch-Linux-install-doc
-unstructured_doc
-Planungsphase, Vorbereitung, Ideen für die Installation
+Arch-Linux installation documentary
+
+This will document my current Arch Linux installation with SED (self encrypted disk), FDE (full disk encryptyion, using dm-crypt and LUKS), btrfs filesystem (with subvolumes for easy snapshotting and backup/restore) and Secure Boot.
+
+This is intended to be a documentation of a nice-to-have paranoid setup. 
+Everybody has to decide for himself which balance of comfort vs security he wants and needs. 
+
+This might be more than I need for security (since I have few data that might be of high or even any interest to others), 
+but this is what I am capable of and it is a kind of a 'because I can' installation.
+
+Very few things are special in this installation and 98% are just adapted and copied from anywhere else on the net and from other wikis and documentations.
+
+I will try to sum up all used and usefull references to set up such a system and highly anticipate to not follow it as an installation guide,
+but read it as another wiki to learn how to setup your own rig. 
+
 
 ##wipe disk
 # use vendor-secific or commom-sense documented save mechanisms to securely erase all past data on the disc
