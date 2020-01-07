@@ -21,5 +21,3 @@ installation guide, but read it as another wiki to learn how to set up your own 
 Now [here](https://github.com/TheContortion1st/Arch-Linux-install-doc/wiki) you go to the Wiki and documentary.
 
 Have fun reading! 
-
-_author Daniel Punke_
