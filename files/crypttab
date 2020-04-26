@@ -10,5 +10,5 @@
 # data2		/dev/sda5					/etc/cryptfs.key
 #swap		LABEL=cryptswap					/dev/urandom		swap,offset=2048,cipher=aes-cbc-essiv:sha256,size=256
 swap		LABEL=cryptswap					/dev/urandom		swap,offset=2048,cipher=aes-xts-plain64,size=512 
-# Note "offset=2048" + "size=512", this way the encrypted swap will not affect the 1MiB filesystem LABEL/UUID at the beginning of nvme0n1p2, and data algnment will work out as well
+# Note "offset=2048" + "size=512", this way the encrypted swap will not affect the 1MiB filesystem LABEL/UUID at the beginning of nvme0n1p2, and data alignment will work out as well
 # vol		/dev/sdb7					none
