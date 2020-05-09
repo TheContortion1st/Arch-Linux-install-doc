@@ -1,0 +1,514 @@
+*ncm2.txt*                              Ncm2 Documentation
+
+Author: roxma <roxma@qq.com>
+License: MIT
+
+        A Slim, Fast and Hackable Completion Framework for Neovim~
+
+ncm2                                *ncm2*
+
+1. Introduction                     |ncm2-introduction|
+2. Install                          |ncm2-install|
+3. Vimrc Examples                   |ncm2-vimrc|
+4. Settings                         |ncm2-settings|
+5. API                              |ncm2-API|
+6. Autocmds                         |ncm2-autocmd|
+
+==============================================================================
+1. Introduction                     *ncm2-introduction*
+
+ncm2, formerly known as nvim-completion-manager, is a slim, fast and hackable
+completion framework for neovim.
+
+Main features:
+
+1. Fast and asynchronous completion support, with vimscript friendly API.
+2. Smart on files with different languages, for example, css/javascript
+   completion in html style/script tag.
+3. Function parameter expansion support using ncm2-snippet plugins.
+4. Language server protocol plugin integrations.
+
+Read our [wiki-page](https://github.com/ncm2/ncm2/wiki) for a list of
+extensions and programming languages support for NCM2.
+
+==============================================================================
+2. Install                          *ncm2-install*
+
+Requirements:
+
+For neovim users:
+
+- `:echo has("nvim-0.2.2")` prints 1. Older versions has not been tested.
+- `:echo has("python3")` prints 1. This is usually set by
+    `python3 -m pip install pynvim` in shell and
+  `let g:python3_host_prog=/path/to/python/executable/` in vimrc.
+- Plugin [nvim-yarp](https://github.com/roxma/nvim-yarp)
+
+For vim8 user, read the [nvim-yarp](https://github.com/roxma/nvim-yarp)
+README. NOTE that vim8 support is simply a bonus. It's not the goal of
+NCM2.
+
+==============================================================================
+3. Vimrc Examples                   *ncm2-vimrc*
+
+Install using vim-plug:
+>
+    " assuming you're using vim-plug: https://github.com/junegunn/vim-plug
+    Plug 'ncm2/ncm2'
+    Plug 'roxma/nvim-yarp'
+
+    " enable ncm2 for all buffer
+    autocmd BufEnter * call ncm2#enable_for_buffer()
+
+    " IMPORTANTE: :help Ncm2PopupOpen for more information
+    set completeopt=noinsert,menuone,noselect
+
+    " NOTE: you need to install completion sources to get completions. Check
+    " our wiki page for a list of sources: https://github.com/ncm2/ncm2/wiki
+    Plug 'ncm2/ncm2-bufword'
+    Plug 'ncm2/ncm2-path'
+<
+Optional vimrc tips:
+>
+    " supress the annoying 'match x of y', 'The only match' and 'Pattern not
+    " found' messages
+    set shortmess+=c
+
+    " enable auto complete for `<backspace>`, `<c-w>` keys.
+    " known issue https://github.com/ncm2/ncm2/issues/7
+    au TextChangedI * call ncm2#auto_trigger()
+
+    " CTRL-C doesn't trigger the InsertLeave autocmd . map to <ESC> instead.
+    inoremap <c-c> <ESC>
+
+    " When the <Enter> key is pressed while the popup menu is visible, it only
+    " hides the menu. Use this mapping to close the menu and also start a new
+    " line.
+    inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
+
+    " Use <TAB> to select the popup menu:
+    inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+    " wrap existing omnifunc
+    " Note that omnifunc does not run in background and may probably block the
+    " editor. If you don't want to be blocked by omnifunc too often, you could
+    " add 180ms delay before the omni wrapper:
+    "  'on_complete': ['ncm2#on_complete#delay', 180,
+    "               \ 'ncm2#on_complete#omni', 'csscomplete#CompleteCSS'],
+    au User Ncm2Plugin call ncm2#register_source({
+            \ 'name' : 'css',
+            \ 'priority': 9,
+            \ 'subscope_enable': 1,
+            \ 'scope': ['css','scss'],
+            \ 'mark': 'css',
+            \ 'word_pattern': '[\w\-]+',
+            \ 'complete_pattern': ':\s*',
+            \ 'on_complete': ['ncm2#on_complete#omni', 'csscomplete#CompleteCSS'],
+            \ })
+<
+==============================================================================
+4. Settings                         *ncm2-settings*
+
+                                    *g:ncm2#complete_delay*
+g:ncm2#complete_delay
+            Wait for an interval, in milliseconds, before starting to
+            compute completions. This is useful when dealing with slow,
+            sync completion source.
+            Default: 0
+
+                                    *g:ncm2#popup_delay*
+g:ncm2#popup_delay
+            Adds a delay before the popup menu gets updated for current
+            typing. It will reduce the popup menu flickering when multiple
+            sources is updating the popup menu in a short interval.
+            Default: 60
+
+                                    *g:ncm2#matcher*
+g:ncm2#matcher
+            Available builtin matchers:
+            prefix          Match if the typing is the prefix of the
+                            completion item.
+            substr          match if the typing is a substring of the
+                            completion item.
+            abbrfuzzy       Abbreviation based fuzzy matching. For example,
+                            `fooba` matches `foo_bar`, but `fooar` doesn't
+                            match `foo_bar`.
+            substrfuzzy     More fuzzy than abbrfuzzy.
+            none            Simply forwards all completion items.
+            combine         Combines multiple matchers.
+                            The following matcher matches menu field with
+                            abbrfuzzy matcher or word field with prefix
+                            matcher.  >
+                            {'name': 'combine',
+                            \ 'matchers': [
+                            \   {'name': 'abbrfuzzy', 'key': 'menu'},
+                            \   {'name': 'prefix', 'key': 'word'},
+                            \ ]},
+<            base_min_len    For example, this matcher requires at least 3
+                            characters of user input:
+                            `{'name': 'base_min_len', 'value': 3}`
+            must            And operation for matchers.
+                            The following matcher requires at least 3
+                            characters of user input and then do substrfuzzy
+                            match.  >
+                            {'name': 'must',
+                            \ 'matchers': [
+                            \   {'name': 'base_min_len', 'value': 3},
+                            \   'substrfuzzy',
+                            \ ]},
+<
+                                    *g:ncm2#sorter*
+g:ncm2#sorter
+            Available builtin sorters:
+            alphanum        Use the swapped-case word as the sort key.
+            abbrfuzzy       This is more friendly for "abbrfuzzy" matcher.
+            none            Do not sort.
+            Default: "abbrfuzzy"
+
+                                    *g:ncm2#filter*
+g:ncm2#filter
+            Filter the completion items. Could be a string/dict, or a list of
+            strings/dicts. Filters are chained to filter the matches.
+            Available filters:
+            "same_word"     Filter out the items which have the same word as your typing.
+            "substitute"    For example: >
+                                {'name':'substitute',
+                                \ 'pattern': '[\(\s].*$',
+                                \ 'replace': '',
+                                \ 'key': 'word'}
+<                            changes the completion item from
+                                `{"word": "print(str)", "abbr": "print(str)"}`
+                            into
+                                `{"word": "print", "abbr": "print(str)"}`
+            "set_dup"       For example: >
+                                call ncm2#override_source('bufword', {
+                                    \ 'filter': {
+                                    \   'name': 'set_dup',
+                                    \   'value': 0}})
+<                            changes the completion items of source "bufword"
+                            from
+                                `{"word": "foo"}`
+                            into
+                                `{"word": "foo", "dup": 0}`
+                            Note that set_dup uses vim's builtin dedup filter,
+                            which is only based on the "word" field of the
+                            item. Refer to |complete-items| for more
+                            information on "dup" field.
+            "dedup"         Similar to `"filter":{'name':'set_dup','value':0}`
+                            but `"filter": "dedup"` compares the whole item
+                            value for deduplication.
+            "abbr_ellipsis" For example: >
+                                call ncm2#override_source('bufword', {
+                                    \ 'filter': {
+                                    \   'name': 'abbr_ellipsis',
+                                    \   'ellipsis': '..',
+                                    \   'limit': 10}})
+<                            This limits the completion item "abbr" field's
+                            max length to 10.
+                            Before:
+                                `{"word": "123456789012345"}`
+                            After:
+                                `{"word": "123456789012345", "abbr": "1234567890.."}`
+
+                                    *g:ncm2#auto_popup*
+g:ncm2#auto_popup
+            If set to 0, then you have to map the |ncm2#manual_trigger()| key,
+            and use this key to trigger the completion.  Default: 1
+
+                                    *g:ncm2#complete_length*
+g:ncm2#complete_length
+            The default value for |ncm2-complete_length|.
+            Default: `[[1,3],[7,2]]`
+            Format: an integer, or a |List| as `[[ min_prio, min_len ],...]`
+            The default value means that sources with priority between 1 and 6
+            will have the value of 3, and sources with priority >= 7 will have
+            the value of 2.
+            Priority >= 7 is more semantic completion source, So it's better
+            to use a smaller value to trigger the popup than others.
+
+                                    *g:ncm2#manual_complete_length*
+g:ncm2#manual_complete_length
+            Same as |g:ncm2#complete_length| except that it is used for
+            |ncm2#manual_trigger()|.
+            Note that during manual completion, ncm2 looks for the
+            complete_length with the following order:
+            1. The source's custom manual_complete_length
+            2. The source's custom complete_length,
+            3. g:ncm2#manual_complete_length.
+
+
+                                    *g:ncm2#popup_limit*
+g:ncm2#popup_limit
+            If set, this option will be the default limit of completion items
+            that will be shown for each completion source.
+
+                                    *g:ncm2#total_popup_limit*
+g:ncm2#total_popup_limit
+            If set, this option will be the limit of total completion items
+            that will be shown by ncm2.
+
+==============================================================================
+5. API                              *ncm2-API*
+
+                                    *ncm2#register_source()*
+ncm2#register_source({source})
+    Register a completion source. {source} is a |Dict| that defines the
+    source, it may contain these fields:
+    name                Required, the unique name of the completion source.
+    mark                            *ncm2-mark*
+                        This field might be displayed in the popup item to
+                        indicate the completion source.
+    enable              Defaults to 1. If set to 0, it will only be triggered
+                        by |ncm2#manual_trigger()|
+    ready                           *ncm2-ready*
+                        Defaults to 1. If your completion engine is a
+                        standalone process, you could set this field to 0 on
+                        registration. After the process has loaded, set this
+                        field to 1, so that ncm2 knows this source is ready
+                        for completion.
+                        No that this field doesn't affect the `on_warmup`
+                        callback.
+    priority                        *ncm2-priority*
+                        The priority is used to sort between other sources.  A
+                        higher value indicates the completion items are shown
+                        ahead of thoses of lower priority sources.
+                        Recommended priority definitions:
+                        2   keyword from the otherfiles, from user's openning
+                            browsers, etc.
+                        4   keyword from openning buffers
+                        5   keyword from current buffer
+                        6   file path
+                        7   snippet hint
+                        8   language specific keyword, but not smart
+                        9   smart programming language aware completion
+    scope                           *ncm2-scope*
+                        A |List| of scope. The source will be activated when
+                        the current editting scope (e.g. current 'filetype')
+                        is in the source's scope
+                        list.
+                        If this field is not set, it means this is a general
+                        purpose completion source, like keyword from buffer,
+                        it will be activated for all buffers.
+                                    *ncm2-scope_blacklist*
+    scope_blacklist
+                        A list of scopes that the source is not allowed to
+                        work on.  This field has no effect if |ncm2-scope|
+                        field of the source is defined.
+    on_complete                     *ncm2-on_complete*
+                        Function name of the handler for the completion
+                        request.
+    auto_popup
+                        If 0, only the |ncm2#manual_trigger()| key can
+                        trigger the completion of this source.
+                        Default: 1
+    word_pattern                    *ncm2-word_pattern*
+                        The pattern used to calculate |ncm2-startcol|.
+    complete_length                 *ncm2-complete_length*
+                        The minimum length of the matching word for auto
+                        triggering popup menu.
+                        If it contains a negative value, completion will only
+                        be triggered by complete_pattern.
+    complete_pattern                *ncm2-complete_pattern*
+                        An extra |List| of PCRE patterns (python regex),
+                        besides complete_length, for auto triggering popup
+                        menu.
+    matcher             Set this field if you want custom matcher instead of
+                        the global |g:ncm2#matcher|.
+    filter              Set this field if you want custom filter instead of
+                        the global |g:ncm2#filter|.
+    sorter              Set this field if you want custom filter instead of
+                        the global |g:ncm2#sorter|.
+    popup_limit         Limit the number of completion items that will popup.
+                        Default: |g:ncm2#popup_limit|
+
+    Here are some examples, that should give you some hints on how
+    word_pattern, complete_pattern and complete_length work.
+>
+        complete_length: 3
+        complete_pattern: ['\.']
+        word_pattern: '\w+'
+
+            typing            : foo_service.request()
+            complete trigger  :   ^        ^
+            startccol         : x           x
+            base              : [.........] [.....]
+
+            typing            : fd.read()
+            complete trigger  :   ^
+            complete trigger  :    x
+            base              :    [..]
+
+        complete_length: -1
+        complete_pattern: ['/']
+        word_pattern: '\S+'
+
+            typing           : first/second/third
+            complete trigger :      ^      ^
+            startccol        : x
+            base             : [................]
+<
+                                    *ncm2#register_source-example*
+    In case you don't enjoy the above boring text example, you could try
+    running the following script, then type something, or change
+    `g:test_source`, e.g. `let g:test_source.complete_pattern = [':']` . Try
+    to observe how the menu pops up and change as you type.
+>
+    let g:test_source = {
+                \ 'name': 'foo',
+                \ 'complete_length': 3,
+                \ 'complete_pattern': [ '\.'],
+                \ 'matcher': 'none',
+                \ 'on_complete': {c -> ncm2#complete(c,
+                \       c.startccol,
+                \       ['on_complete-' . b:changedtick . '-' . c.startccol]
+                \       )},
+                \ }
+
+    call ncm2#register_source(g:test_source)
+<
+
+                                    *ncm2#context()*
+ncm2#context({name})
+    The context passed to the on_complete handler contains usefule information
+    for completion source, as well as important information for ncm2 internal
+    synchronization. Some of the fields are described here:
+    bufnr               Same as `bufnr('%')`.
+    lnum                Same as `line('.')`.
+    ccol                Similar to `col('.')` but it's counted by characters.
+    filetype            Same as 'filetype' of the buffer.
+    typed               The typed text. For example: `^foo bar|baz`, where `^`
+                        indicates the start of line, and `|` indicates cursor
+                        position. This field should be: "foo bar"
+    filepath            The path of current editting file. Same as
+                        `expand('%:p')`
+    scope               Current editting scope. Usually it's the same of
+                        filetype.
+    startccol           *ncm2-startccol*
+                        Calaulated by ncm2 for convenience, usually you could
+                        simply pass it as an argument to the |ncm2#complete()|
+                        function.
+    base                The string that starts from `startccol` ends before
+                        the cursor.
+    time                The timestamp of the context generated by python
+                        `time.time()`.
+
+                                    *ncm2#complete_context_dated()*
+ncm2#complete_context_dated({context})
+    Ncm2 remembers the latest context sent to each completion source. This
+    function compares the argument with the latest context, and returns 1 if
+    it is not the latest context.
+
+    It is useful when the completion worker is slow and finishes before ncm2
+    sends more completion requests. You don't want to calculate completion for
+    every context recieved. Use this function to check whether it is the
+    latest one at the beginning of your background job.
+
+    Another use case of the function is that, you could check the context
+    periodicly after the completion has started. So that you could cancel the
+    completion as soon as possible if the user has left the completion
+    context.
+
+                                    *ncm2#complete()*
+ncm2#complete({context}, {startccol}, {matches}[, {refresh}])
+    Call this function to trigger the to feed completions to ncm2.
+    {context} is an argument passed to the |ncm2-on_complete| handler. Do not
+    change the contents. It is important for synchronization.
+    {startccol} is similar to the `startcol` argument of the |complete()|
+    function. However, startccol is counted by characters instead of by bytes.
+    {matches} is similar to the `matches` argument of the |complete()|
+    function.
+    {refresh} is 0 by default. Normally ncm2 will cache the result properly.
+    set it to 1 if you want another on_complete notification as the the user
+    types.
+
+                                    *ncm2#override_source*
+ncm2#override_source({name}, {callback})
+    Override ncm2 source options with a callback function. For example:
+    `call ncm2#override_source('bufword', {s->extend(s, {'priority': 3})})`
+    or
+    `call ncm2#override_source('bufword', {'priority': 3})`
+
+                                    *ncm2#unregister_source()*
+ncm2#unregister_source()
+    Remove the source from ncm2 registry.
+
+                                    *ncm2#enable_for_buffer()*
+ncm2#enable_for_buffer()
+    Enable ncm2 for current buffer.
+
+                                    *ncm2#disable_for_buffer()*
+ncm2#disable_for_buffer()
+    Disable ncm2 for current buffer.
+
+                                    *ncm2#lock()* *ncm2#unlock()*
+ncm2#lock({name}) ncm2#lock({name})
+    Lock or unlock ncm2 when working with other plugins that may modify the
+    buffer in insert mode.
+
+    Here's an example working with vim-multiple-cursors.
+>
+    function! Multiple_cursors_before()
+        call ncm2#lock('vim-multiple-cursors')
+    endfunction
+
+    function! Multiple_cursors_after()
+        call ncm2#unlock('vim-multiple-cursors')
+    endfunction
+<
+                                    *ncm2#whitelist_for_buffer()*
+ncm2#whitelist_for_buffer([{list}])
+    If {list} is available, set completion source whitelist for current
+    buffer. If the list is not empty, only the completion sources in the list
+    are allowed to work for current buffer.
+
+    Returns the current completion source whitelist.
+
+                                    *ncm2#blacklist_for_buffer()*
+ncm2#blacklist_for_buffer([{list}])
+    If {list} is available, set completion source blacklist for current
+    buffer. If the list is not empty, source completion sources in the list
+    are not allowed to work for current buffer. If
+    |ncm2#whitelist_for_buffer()| is not empty, then the blacklist has no
+    effect.
+
+    Returns the current completion source blacklist.
+
+                                    *ncm2#manual_trigger()*
+inoremap <your-key> <c-r>=ncm2#manual_trigger(...)<cr>
+    Map this as a key to trigger completion manually.
+
+                                    *ncm2#force_trigger()*
+inoremap <your-key> <c-r>=ncm2#force_trigger(...)<cr>
+    Like |ncm2#manual_trigger()|, but this trigger does not respect
+    |g:ncm2#manual_complete_length|.
+    Use <c-r>=ncm2#force_trigger('ultisnips', 'othersource'...)<cr> to narrow
+    the completion trigger to ultisnips and othersource.
+
+
+==============================================================================
+6. Autocmds                         *ncm2-autcmd*
+
+                                    *Ncm2PopupOpen* *Ncm2PopupClose*
+:autocmd User Ncm2PopupOpen
+:autocmd User Ncm2PopupClose
+    When ncm2 is doing auto-completion, you must keep `noinsert` in
+    |completeopt| and you must not use `longest`.
+
+    But it is inconvenient to use the same |completeopt| to trigger neovim
+    builtin |ins-completion| manually.  This example shows how to use
+    `completeopt=menuone` when ncm2 has no completion item to pop up.
+>
+    au User Ncm2PopupOpen set completeopt=noinsert,menuone,noselect
+    au User Ncm2PopupClose set completeopt=menuone
+<
+                                    *Ncm2Plugin*
+:autocmd User Ncm2Plugin
+    This autocmd is triggered after ncm2 is loaded. It has two effects:
+
+    - Using Ncm2Plugin will not raise an error is ncm2 has not been installed
+      yet.
+    - It's easier for tuning the startup time of your editor.
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:expandtab:

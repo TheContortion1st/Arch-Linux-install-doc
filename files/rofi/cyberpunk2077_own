@@ -1,0 +1,31 @@
+! rofi.modi:                           window,run,ssh
+! color_yellow = '#fcee0a'
+! color_cyan = '#02d7f2'
+! color_red = '#ff003c'
+
+rofi.width:                          100 
+
+rofi.lines:                          5 
+
+rofi.columns:                        1 
+
+rofi.font:                           Open Sans 15
+
+rofi.bw:                             0
+
+rofi.padding:                        800
+
+rofi.eh:                             2
+
+rofi.hide-scrollbar:                 true
+
+rofi.color-normal:	argb:cc000000, #fcee0a, argb:cc000000, argb:cc000000, #ffffff
+
+rofi.color-urgent:	argb:cc000000, #fcee0a, argb:cc000000, argb:cc000000, #02d7f2
+
+rofi.color-urgent:	argb:cc000000, #fcee0a, argb:cc000000, argb:cc000000, #02d7f2
+
+rofi.color-window:	argb:cc000000, #fcee0a, argb:cc02d7f2
+!rofi.color-window:	#2f343f, #f3f4f5, #676e7d
+
+rofi.kb-cancel:                      Escape,Control+g,Control+bracketleft

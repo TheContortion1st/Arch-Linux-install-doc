@@ -1,0 +1,35 @@
+! rofi.modi:		window,run,ssh
+
+rofi.width:		100 
+
+rofi.lines:		3 
+
+rofi.columns:		1 
+
+rofi.font:		Open Sans 15
+
+rofi.bw:		0
+
+rofi.padding:		800
+
+rofi.eh:		2
+
+rofi.hide-scrollbar:	true
+
+rofi.color-enabled:	true
+
+rofi.fullscreen:	true
+
+rofi.color-normal:	argb:cc2f343f, #f3f4f5, argb:cc2f343f, #2f343f, #9575cd
+!rofi.color-normal:	#2f343f, #f3f4f5, #2f343f, #2f343f, #9575cd
+
+rofi.color-urgent:	argb:cce53935, #dc322f, argb:cce53935, #dc322f, #9575cd
+!rofi.color-urgent:	#e53935, #dc322f, #e53935, #dc322f, #9575cd
+
+rofi.color-active:	argb:cc2f343f, #268bd2, argb:cc2f343f, #2f343f, #9575cd
+!rofi.color-active:	#2f343f, #268bd2, #2f343f, #2f343f, #9575cd
+
+rofi.color-window:	argb:cc2f343f, #f3f4f5, #676e7d
+!rofi.color-window:	#2f343f, #f3f4f5, #676e7d
+
+rofi.kb-cancel:                      Escape,Control+g,Control+bracketleft
