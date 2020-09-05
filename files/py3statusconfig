@@ -9,7 +9,7 @@
 general {
     colors = true
     interval = 5
-    color = '#299e95'
+    color = '#9902d7f2'
 #   color_yellow = '#fcee0a'
 #   color_cyan = '#02d7f2'
 #   color_red = '#ff003c'
@@ -17,7 +17,7 @@ general {
 
 conky {
     config = {
-        'update_interval': 1,            # update interval for conky
+        'update_interval': 1,             # update interval for conky
         'update_interval_on_battery': 60, # update interval when on battery
         'format_human_readable': True,    # if False, print in bytes
         'short_units': False,             # shortens units, eg kiB > k, GiB > G
@@ -26,10 +26,11 @@ conky {
 }
 
 order += "battery_level"
-order += "conky addr"
-order += "conky memory"
+#order += "conky addr"
+#order += "conky memory"
+order += "group conky"
 order += "volume_status"
-order += "conky loadavg"
+#order += "conky loadavg"
 order += "clock"
 
 # button numbers
@@ -39,32 +40,38 @@ order += "clock"
 #4 = scroll up
 #5 = scroll down
 
-conky addr {
-    format = '[\?color=orange :{addr enp2s0}] '
-#    format += '[\?color=violet :{addr wlp4s0}]' 
-    format += '[\?color=violet :{addr wlp4s0}]' 
-}
+group conky {
+    cycle = 3
+    format = "{output}"
+    
+    conky addr {
+        format = '[\?color=orange :{addr enp2s0}] '
+    #   format += '[\?color=violet :{addr wlp4s0}]' 
+        format += '[\?color=violet :{addr wlp4s0}]' 
+    }
 
-conky loadavg {
-#    format = 'Loadavg '
-    format = ':'
-    format += '[\?color=lightgreen {loadavg 1} ]'
-    format += '[\?color=lightgreen {loadavg 2} ]'
-    format += '[\?color=lightgreen {loadavg 3}]'
-}
+    conky loadavg {
+    #   format = 'Loadavg '
+        format = ':'
+        format += '[\?color=lightgreen {loadavg 1} ]'
+        format += '[\?color=lightgreen - {loadavg 2} ]'
+        format += '[\?color=lightgreen - {loadavg 3}]'
+    }
 
-conky memory {
-    format = ':[\?color=#696fc0 {mem}/{memmax}] '
-#    format += '[\?color=violet {memperc}% \[{membar}\]]'
-    format += '[\?color=violet {memperc}%]'
-    thresholds = [
-        (0, 'darkgray'), (0.001, 'good'), (50, 'degraded'),
-        (75, 'orange'), (85, 'bad')
-    ]
+    conky memory {
+        format = ':[\?color=#696fc0 {mem}/{memmax}] '
+    #   format += '[\?color=violet {memperc}% \[{membar}\]]'
+        format += '[\?color=violet {memperc}%]'
+        thresholds = [
+            (0, 'darkgray'), (0.001, 'good'), (50, 'degraded'),
+            (75, 'orange'), (85, 'bad')
+        ]
+    }   
 }
 
 battery_level {
-    blocks = ''
+        blocks = ''
+    format = "{icon}:{percent}% ({time_remaining})"
 #    blocks = '_▁▂▃▄▅▆▇█'
     charging_character = '⚡'
     measurement_mode = 'sys'
@@ -76,7 +83,7 @@ battery_level {
     hide_when_full = true
     notification = true
     threshold_degraded = 25
-    threshold_full = 95
+    threshold_full = 85
     format_notify_charging = 'Charging ({percent}%)'
     format_notify_discharging = "{time_remaining}"
 }
@@ -123,20 +130,20 @@ clock {
 #    config = {'short_units': False}
 #}
 
-#volume_status {
-#    format = '[\?if=is_input |♪] {percentage}%'
-#	format_muted = '[\?if=is_input 😶|♪] muted'
-#	device = "0"
-#	channel = "Master"
-#	command = "pactl"
-#	on_click 1 = "exec pavucontrol"
-#	on_click 2 = "exec pactl set-sink-mute 0 toggle"
-#	on_click 3 = "exec killall pactl"
-#	on_click 4 = "exec pactl set-sink-volume 0 +5%"
-#	on_click 5 = "exec pactl set-sink-volume 0 -5%"
-#    color_good = '#02d7f2'
-#    color_bad = '#ff003c'
-#}
+volume_status {
+    format = '[\?if=is_input |] {percentage}%'
+	format_muted = '[\?if=is_input 😶|] muted'
+    device = "0"
+	channel = "Master"
+	command = "pactl"
+	on_click 1 = "exec pavucontrol"
+	on_click 2 = "exec pactl set-sink-mute 0 toggle"
+	on_click 3 = "exec killall pactl"
+	on_click 4 = "exec pactl set-sink-volume 0 +5%"
+	on_click 5 = "exec pactl set-sink-volume 0 -5%"
+    color_good = '#02d7f2'
+    color_bad = '#ff003c'
+}
 #conky filesystem {
     # home filesystem
 #    format = 'Home [\?color=violet {fs_used /home}/{fs_size /home} '
