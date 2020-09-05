@@ -1,0 +1,221 @@
+# i3status configuration file.
+# see "man i3status" for documentation.
+
+# It is important that this file is edited as UTF-8.
+# The following line should contain a sharp s:
+# ß
+# If the above line is not correctly displayed, fix your editor first!
+
+general {
+    colors = true
+    interval = 5
+    color = '#9902d7f2'
+#   color_yellow = '#fcee0a'
+#   color_cyan = '#02d7f2'
+#   color_red = '#ff003c'
+}
+
+conky {
+    config = {
+        'update_interval': 1,             # update interval for conky
+        'update_interval_on_battery': 60, # update interval when on battery
+        'format_human_readable': True,    # if False, print in bytes
+        'short_units': False,             # shortens units, eg kiB > k, GiB > G
+        'uppercase': True,                # upper placeholders
+    }
+}
+
+order += "battery_level"
+#order += "conky addr"
+#order += "conky memory"
+order += "group conky"
+order += "volume_status"
+#order += "conky loadavg"
+order += "clock"
+
+# button numbers
+#1 = left click
+#2 = middle click
+#3 = right click
+#4 = scroll up
+#5 = scroll down
+
+group conky {
+    cycle = 3
+    format = "{output}"
+    
+    conky addr {
+        format = '[\?color=orange :{addr enp2s0}] '
+    #   format += '[\?color=violet :{addr wlp4s0}]' 
+        format += '[\?color=violet :{addr wlp4s0}]' 
+    }
+
+    conky loadavg {
+    #   format = 'Loadavg '
+        format = ':'
+        format += '[\?color=lightgreen {loadavg 1} ]'
+        format += '[\?color=lightgreen - {loadavg 2} ]'
+        format += '[\?color=lightgreen - {loadavg 3}]'
+    }
+
+    conky memory {
+        format = ':[\?color=#696fc0 {mem}/{memmax}] '
+    #   format += '[\?color=violet {memperc}% \[{membar}\]]'
+        format += '[\?color=violet {memperc}%]'
+        thresholds = [
+            (0, 'darkgray'), (0.001, 'good'), (50, 'degraded'),
+            (75, 'orange'), (85, 'bad')
+        ]
+    }   
+}
+
+battery_level {
+        blocks = ''
+    format = "{icon}:{percent}% ({time_remaining})"
+#    blocks = '_▁▂▃▄▅▆▇█'
+    charging_character = '⚡'
+    measurement_mode = 'sys'
+    notify_low_level = true
+    on_udev_power_supply = 'refresh'
+    color_good = '#02d7f2'
+    color_bad = '#ff003c'
+    color_charging = 'green'
+    hide_when_full = true
+    notification = true
+    threshold_degraded = 25
+    threshold_full = 85
+    format_notify_charging = 'Charging ({percent}%)'
+    format_notify_discharging = "{time_remaining}"
+}
+
+clock {
+    format = ["{Europe/Berlin}"]
+    format_time = "%a %e %b %I:%M:%S %P %#Z"
+    block_hours = 12
+    on_click 1 = "exec zenity --calendar"
+    color = '#299e95'
+}
+
+#loadavg {
+#    color = '#fcee0a'
+#    format = ' [\?color=#fcee0a] '
+#    format += '1min [\?color=#02d7f2 {1avg}%] '
+#    format += '5min [\?color=#02d7f2 {5avg}%] '
+#    format += '15min [\?color=#02d7f2 {15avg}%]]'
+#}
+
+#diskdata {
+#    disk = '/dev/mapper/cryptroot'
+#    format = ' / {used_percent}%({total_space}GB)'
+#    color = '#fcee0a'
+#    on_click 1 = "exec dolphin"
+#    color_good = '#fcee0a'
+#    color_bad = '#ff003c'
+#    color_degraded = '#ff003c'
+#}
+
+#conky top_cpu {
+#    format = 'Top [\?color=darkgray '
+#    format += '{top name 1} '
+#    format += '[\?color=deepskyblue {top mem_res 1}] '
+#    format += '[\?color=lightskyblue {top cpu 1}%] '
+#
+#    format += '{top name 2} '
+#    format += '[\?color=deepskyblue {top mem_res 2}] '
+#    format += '[\?color=lightskyblue {top cpu 2}%] '
+#
+#    format += '{top name 3} '
+#    format += '[\?color=deepskyblue {top mem_res 3}] '
+#    format += '[\?color=lightskyblue {top cpu 3}%]]'
+#    config = {'short_units': False}
+#}
+
+volume_status {
+    format = '[\?if=is_input |] {percentage}%'
+	format_muted = '[\?if=is_input 😶|] muted'
+    device = "0"
+	channel = "Master"
+	command = "pactl"
+	on_click 1 = "exec pavucontrol"
+	on_click 2 = "exec pactl set-sink-mute 0 toggle"
+	on_click 3 = "exec killall pactl"
+	on_click 4 = "exec pactl set-sink-volume 0 +5%"
+	on_click 5 = "exec pactl set-sink-volume 0 -5%"
+    color_good = '#02d7f2'
+    color_bad = '#ff003c'
+}
+#conky filesystem {
+    # home filesystem
+#    format = 'Home [\?color=violet {fs_used /home}/{fs_size /home} '
+#    format += '[\?color=fs_used_perc./home '
+#    format += '{fs_used_perc /home}% \[{fs_bar /home}\]]]'
+
+    # hdd filesystem
+    # format += ' HDD [\?color=violet {fs_used '
+    # format += '/run/media/user/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    # format += '}/{fs_size '
+    # format += '/run/media/user/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    # format += '}[\?color=fs_used_perc.'
+    # format += '/run/media/user/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    # format += ' {fs_used_perc '
+    # format += '/run/media/user/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    # format += '}% \[{fs_bar '
+    # format += '/run/media/user/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    # format += '}\]]]'
+
+#    thresholds = [
+#        (0, 'darkgray'), (0.001, 'good'), (50, 'degraded'),
+#        (75, 'orange'), (85, 'bad')
+#    ]
+#}
+#
+#conky info {
+#    format = '[\?color=title&show OS] [\?color=output {distribution}] '
+#    format += '[\?color=title&show CPU] [\?color=output {cpu cpu0}%] '
+#    format += '[\?color=title&show MEM] '
+#    format += '[\?color=output {mem}/{memmax} ({memperc}%)] '
+#    format += '[\?color=title&show HDD] [\?color=output {fs_used_perc}%] '
+#    format += '[\?color=title&show Kernel] [\?color=output {kernel}] '
+#    format += '[\?color=title&show Loadavg] [\?color=output {loadavg 1}] '
+#    format += '[\?color=title&show Uptime] [\?color=output {uptime}] '
+#    format += '[\?color=title&show Freq GHZ] [\?color=output {freq_g}]'
+#    color_title = '#ffffff'
+#    color_output = '#00bfff'
+#}
+#
+#conky nvidia {
+#    format = 'GPU Temp [\?color=greenyellow {nvidia temp}] '
+#    format += 'GPU Freq [\?color=greenyellow {nvidia gpufreq}] '
+#    format += 'Mem Freq [\?color=greenyellow {nvidia memfreq}] '
+#    format += 'MTR Freq [\?color=greenyellow {nvidia mtrfreq}] '
+#    format += 'Perf [\?color=greenyellow {nvidia perflevel}] '
+#    format += 'Mem Perc [\?color=greenyellow {nvidia memperc}]'
+ #   config = {
+ #       'nvidia_display': "':0'"
+ #   }
+#}
+#
+#wireless _first_ {
+#    format_up = " (%quality at %essid) %ip"
+#    format_down = " down"
+#    color_good = '#02d7f2'
+#    color_bad = '#ff003c'
+#}
+#
+#ethernet _first_ {
+#    format_up = " %ip"
+#    format_down = " down"
+#    color_good = '#02d7f2'
+#    color_bad = '#ff003c'
+#}
+#conky date {
+#    format = '[\?color=#299e95 {execi 5 "date"}] '
+#    format += '[\?color=degraded {execi 60 "uptime -p"}] '
+#    format += '[\?color=bad {execi 3600 "uptime -s"}]'
+#    on_click 1 = 'exec zenity --calendar'
+#}
+
+#conky proc {
+#    format = 'Processes [\?color=cyan {processes}/{running_processes}]'
+#}
+#
